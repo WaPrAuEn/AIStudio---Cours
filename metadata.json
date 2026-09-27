@@ -1,0 +1,6 @@
+{
+  "name": "SyncPulse - Enterprise Automation & n8n Lead Orchestration",
+  "description": "High-conversion modern SaaS landing page with real-time webhook dispatch directly to n8n automation workflows.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
