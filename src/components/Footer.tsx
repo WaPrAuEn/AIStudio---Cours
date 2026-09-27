@@ -10,7 +10,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenSettings }) => {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-neutral-850">
           <div>
-            <a href="/" className="text-xl font-bold tracking-tight text-white font-display">
+            <a href="./" className="text-xl font-bold tracking-tight text-white font-display">
               SyncPulse
             </a>
             <p className="mt-1 text-xs text-neutral-400 max-w-md">
@@ -31,7 +31,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenSettings }) => {
             <a href="#n8n-integration" className="hover:text-neutral-200 transition-colors">
               n8n Guide
             </a>
-            <a href="/static-demo.html" className="text-indigo-400 hover:text-indigo-300 transition-colors">
+            <a href="static-demo.html" className="text-indigo-400 hover:text-indigo-300 transition-colors">
               Version HTML Statique
             </a>
             <button

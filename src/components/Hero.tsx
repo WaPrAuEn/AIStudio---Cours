@@ -135,7 +135,7 @@ export const Hero: React.FC<HeroProps> = ({
           <div className="relative aspect-[16/9] w-full max-h-[520px] overflow-hidden bg-neutral-950">
             {!imageError ? (
               <img
-                src="/src/assets/images/hero_modern_automation_1790500254707.jpg"
+                src="images/hero_modern_automation_1790500254707.jpg"
                 alt="SyncPulse automation control center and modern enterprise workflow studio"
                 referrerPolicy="no-referrer"
                 onLoad={() => setImageLoaded(true)}

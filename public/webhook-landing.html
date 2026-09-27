@@ -197,9 +197,9 @@
     </div>
 
     <div class="footer-links">
-      <a href="/">&larr; Retour à l'application principale</a>
+      <a href="./">&larr; Retour à l'application principale</a>
       <span>&bull;</span>
-      <a href="/static-demo.html">Voir la démo HTML complète</a>
+      <a href="static-demo.html">Voir la démo HTML complète</a>
     </div>
   </div>
 
@@ -230,34 +230,18 @@
       try {
         let responseJson;
 
-        if (webhookUrl) {
-          // Envoi direct ou proxy
-          try {
-            const res = await fetch(webhookUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-            const text = await res.text();
-            try { responseJson = JSON.parse(text); } catch { responseJson = { message: text }; }
-          } catch (err) {
-            // En cas de blocage CORS direct dans le navigateur, on passe par le proxy backend
-            const proxyRes = await fetch('/api/n8n/dispatch', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ webhookUrl, payload, mode: 'proxy' })
-            });
-            responseJson = await proxyRes.json();
-          }
-        } else {
-          // Simulation
-          const simRes = await fetch('/api/n8n/dispatch', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ webhookUrl: '', payload, mode: 'simulate' })
-          });
-          responseJson = await simRes.json();
+        if (!webhookUrl) {
+          throw new Error('renseignez l\'URL du webhook n8n.');
         }
+
+        // Envoi direct du navigateur vers n8n (pas de serveur : le webhook n8n doit autoriser CORS)
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const text = await res.text();
+        try { responseJson = JSON.parse(text); } catch { responseJson = { message: text }; }
 
         resultBox.style.color = '#34d399';
         resultBox.innerText = 'Succès !\n' + JSON.stringify(responseJson, null, 2);

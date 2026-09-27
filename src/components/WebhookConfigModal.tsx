@@ -7,7 +7,7 @@ interface WebhookConfigModalProps {
   onClose: () => void;
   config: WebhookConfig;
   onSave: (newConfig: WebhookConfig) => void;
-  onTestPing: (url: string, mode: 'proxy' | 'direct') => void;
+  onTestPing: (url: string) => void;
   isPinging: boolean;
 }
 
@@ -70,7 +70,7 @@ export const WebhookConfigModal: React.FC<WebhookConfigModalProps> = ({
   isPinging,
 }) => {
   const [url, setUrl] = useState(config.url || '');
-  const [mode, setMode] = useState<'proxy' | 'simulate' | 'direct'>(config.mode || 'proxy');
+  const mode = 'direct' as const;
   const [authHeaderKey, setAuthHeaderKey] = useState(config.authHeaderKey || '');
   const [authHeaderValue, setAuthHeaderValue] = useState(config.authHeaderValue || '');
   const [copiedWorkflow, setCopiedWorkflow] = useState(false);
@@ -109,7 +109,7 @@ export const WebhookConfigModal: React.FC<WebhookConfigModalProps> = ({
               Configure n8n Webhook Destination
             </h3>
             <p className="mt-1 text-xs text-neutral-400">
-              Set your target n8n instance, authentication parameters, and dispatch mode.
+              Set your target n8n instance and optional authentication header.
             </p>
           </div>
           <button
@@ -138,7 +138,7 @@ export const WebhookConfigModal: React.FC<WebhookConfigModalProps> = ({
               {url && (
                 <button
                   type="button"
-                  onClick={() => onTestPing(url, mode === 'direct' ? 'direct' : 'proxy')}
+                  onClick={() => onTestPing(url)}
                   disabled={isPinging}
                   className="rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2.5 text-xs font-medium text-neutral-200 hover:bg-neutral-700 hover:text-white transition-colors whitespace-nowrap cursor-pointer disabled:opacity-50"
                 >
@@ -149,68 +149,6 @@ export const WebhookConfigModal: React.FC<WebhookConfigModalProps> = ({
             <p className="mt-1.5 text-[11px] text-neutral-400">
               Paste either the <strong className="text-neutral-300">Test URL</strong> (while building your n8n workflow) or <strong className="text-neutral-300">Production URL</strong> (after activating the workflow).
             </p>
-          </div>
-
-          {/* Dispatch Mode Selector */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
-              Dispatch Mode
-            </label>
-            <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <button
-                type="button"
-                onClick={() => setMode('proxy')}
-                className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                  mode === 'proxy'
-                    ? 'border-indigo-500 bg-indigo-950/40 text-white shadow-sm'
-                    : 'border-neutral-800 bg-neutral-950/60 text-neutral-400 hover:border-neutral-700'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white">Server Proxy</span>
-                  {mode === 'proxy' && <Check className="h-3.5 w-3.5 text-indigo-400" />}
-                </div>
-                <div className="mt-1 text-[11px] text-neutral-400">
-                  Recommended. Relays via backend to bypass browser CORS limits.
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setMode('simulate')}
-                className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                  mode === 'simulate'
-                    ? 'border-indigo-500 bg-indigo-950/40 text-white shadow-sm'
-                    : 'border-neutral-800 bg-neutral-950/60 text-neutral-400 hover:border-neutral-700'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white">Simulated Sandbox</span>
-                  {mode === 'simulate' && <Check className="h-3.5 w-3.5 text-indigo-400" />}
-                </div>
-                <div className="mt-1 text-[11px] text-neutral-400">
-                  Runs interactive simulation with realistic n8n node telemetry.
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setMode('direct')}
-                className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                  mode === 'direct'
-                    ? 'border-indigo-500 bg-indigo-950/40 text-white shadow-sm'
-                    : 'border-neutral-800 bg-neutral-950/60 text-neutral-400 hover:border-neutral-700'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white">Direct Client</span>
-                  {mode === 'direct' && <Check className="h-3.5 w-3.5 text-indigo-400" />}
-                </div>
-                <div className="mt-1 text-[11px] text-neutral-400">
-                  POSTs straight from browser (requires n8n CORS response).
-                </div>
-              </button>
-            </div>
           </div>
 
           {/* Optional Authentication Header */}

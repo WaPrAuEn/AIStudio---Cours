@@ -21,7 +21,7 @@
   <header class="border-b border-neutral-850 bg-neutral-950/80 backdrop-blur sticky top-0 z-30">
     <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <a href="/" class="text-xl font-bold tracking-tight text-white hover:text-indigo-400 transition">
+        <a href="./" class="text-xl font-bold tracking-tight text-white hover:text-indigo-400 transition">
           SyncPulse
         </a>
         <span class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded font-mono">
@@ -29,10 +29,10 @@
         </span>
       </div>
       <div class="flex items-center gap-4 text-sm font-medium">
-        <a href="/" class="text-neutral-400 hover:text-white transition">
+        <a href="./" class="text-neutral-400 hover:text-white transition">
           ← Retour à l'application React
         </a>
-        <a href="/webhook-landing.html" class="hidden sm:inline text-neutral-400 hover:text-white transition">
+        <a href="webhook-landing.html" class="hidden sm:inline text-neutral-400 hover:text-white transition">
           Landing Simple
         </a>
         <a href="#formulaire" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3.5 py-2 rounded-lg transition font-semibold">
@@ -78,7 +78,7 @@
             class="w-full bg-neutral-900 border border-neutral-700/80 rounded-lg px-3 py-2 text-xs font-mono text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-indigo-500"
           />
           <div class="mt-2 flex items-center justify-between text-[11px] text-neutral-400">
-            <span>💡 Laissez vide pour tester le proxy simulé intégré.</span>
+            <span>💡 Collez l'URL de votre webhook n8n (CORS autorisé).</span>
             <button type="button" id="btnFillPreset" class="text-indigo-400 hover:text-indigo-300 underline cursor-pointer">
               Exemple prérempli
             </button>
@@ -200,7 +200,7 @@ console.log("Réponse n8n :", result);</code></pre>
         <div class="p-5 rounded-xl border border-neutral-800 bg-neutral-900/30">
           <div class="font-bold text-white text-base mb-2">3. Gestion du CORS</div>
           <p class="text-neutral-400 text-xs leading-relaxed">
-            Si n8n bloque le navigateur (erreur CORS), vous pouvez soit activer les en-têtes CORS dans n8n, soit passer par un petit proxy backend comme celui inclus dans cette application.
+            Si n8n bloque le navigateur (erreur CORS), vous pouvez soit activer les en-têtes CORS dans n8n, soit passer par un petit proxy backend (non disponible sur cette version statique).
           </p>
         </div>
       </div>
@@ -277,52 +277,22 @@ console.log("Réponse n8n :", result);</code></pre>
         let responseData;
         let statusCode = 200;
 
-        // Si l'utilisateur a renseigné une URL directe
-        if (customUrl) {
-          // On tente l'envoi direct ou via le proxy si CORS bloque
-          try {
-            const res = await fetch(customUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-            statusCode = res.status;
-            const text = await res.text();
-            try {
-              responseData = JSON.parse(text);
-            } catch {
-              responseData = { message: text || res.statusText };
-            }
-          } catch (directErr) {
-            // Si CORS bloque, on passe par le proxy de l'application
-            console.warn("Échec direct (probablement CORS), utilisation du proxy /api/n8n/dispatch...", directErr);
-            const proxyRes = await fetch('/api/n8n/dispatch', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                webhookUrl: customUrl,
-                payload: payload,
-                mode: 'proxy'
-              })
-            });
-            const proxyData = await proxyRes.json();
-            statusCode = proxyData.status;
-            responseData = proxyData.responseBody || proxyData;
-          }
-        } else {
-          // Mode simulation / endpoint par défaut
-          const simRes = await fetch('/api/n8n/dispatch', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              webhookUrl: '',
-              payload: payload,
-              mode: 'simulate'
-            })
-          });
-          const simData = await simRes.json();
-          statusCode = simData.status;
-          responseData = simData.responseBody;
+        if (!customUrl) {
+          throw new Error("Renseignez l'URL du webhook n8n.");
+        }
+
+        // Envoi direct du navigateur vers n8n (pas de serveur : le webhook n8n doit autoriser CORS)
+        const res = await fetch(customUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        statusCode = res.status;
+        const text = await res.text();
+        try {
+          responseData = JSON.parse(text);
+        } catch {
+          responseData = { message: text || res.statusText };
         }
 
         statusBadge.textContent = 'HTTP ' + statusCode;

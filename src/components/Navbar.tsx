@@ -28,7 +28,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="sticky top-0 z-40 w-full border-b border-neutral-800/80 bg-neutral-950/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Zone 1: Single text element wordmark */}
-        <a href="/" className="text-xl font-bold tracking-tight text-white font-display transition-opacity hover:opacity-90">
+        <a href="./" className="text-xl font-bold tracking-tight text-white font-display transition-opacity hover:opacity-90">
           SyncPulse
         </a>
 
@@ -46,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <a href="#n8n-integration" className="hover:text-white transition-colors">
             n8n Guide
           </a>
-          <a href="/static-demo.html" className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors flex items-center gap-1">
+          <a href="static-demo.html" className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors flex items-center gap-1">
             <span>Pages HTML</span>
             <span className="text-[10px] bg-indigo-500/20 px-1.5 py-0.5 rounded border border-indigo-500/30">Statique</span>
           </a>

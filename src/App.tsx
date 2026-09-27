@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { WebhookConfig, WebhookDispatchResult } from './types/n8n';
-import { dispatchToN8n, fetchDispatchHistory, clearDispatchHistory } from './services/webhookService';
+import { dispatchToN8n } from './services/webhookService';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { WorkflowSection } from './components/WorkflowSection';
@@ -31,7 +31,7 @@ export default function App() {
     }
     return {
       url: '',
-      mode: 'proxy',
+      mode: 'direct',
       customHeaders: {},
       authHeaderKey: '',
       authHeaderValue: '',
@@ -53,15 +53,6 @@ export default function App() {
     }
   }, [webhookConfig]);
 
-  // Load history on mount
-  useEffect(() => {
-    fetchDispatchHistory().then((items) => {
-      if (items && items.length > 0) {
-        setHistory(items);
-      }
-    });
-  }, []);
-
   const handleSaveConfig = (newConfig: WebhookConfig) => {
     setWebhookConfig(newConfig);
   };
@@ -71,9 +62,8 @@ export default function App() {
     setActiveResult(result);
   };
 
-  const handleQuickPing = async (targetUrl?: string, targetMode?: 'proxy' | 'direct') => {
+  const handleQuickPing = async (targetUrl?: string) => {
     const urlToUse = targetUrl !== undefined ? targetUrl : webhookConfig.url;
-    const modeToUse = targetMode !== undefined ? targetMode : webhookConfig.mode;
 
     setIsPinging(true);
     const pingPayload = {
@@ -90,7 +80,7 @@ export default function App() {
       const result = await dispatchToN8n(pingPayload, {
         ...webhookConfig,
         url: urlToUse,
-        mode: modeToUse,
+        mode: 'direct',
       });
       setHistory((prev) => [result, ...prev.slice(0, 49)]);
       setActiveResult(result);
@@ -99,8 +89,7 @@ export default function App() {
     }
   };
 
-  const handleClearHistory = async () => {
-    await clearDispatchHistory();
+  const handleClearHistory = () => {
     setHistory([]);
   };
 
@@ -162,7 +151,7 @@ export default function App() {
         onClose={() => setIsSettingsOpen(false)}
         config={webhookConfig}
         onSave={handleSaveConfig}
-        onTestPing={(testUrl, testMode) => handleQuickPing(testUrl, testMode)}
+        onTestPing={(testUrl) => handleQuickPing(testUrl)}
         isPinging={isPinging}
       />
 

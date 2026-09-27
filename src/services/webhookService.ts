@@ -28,6 +28,8 @@ export function buildN8nPayload(formData: LeadFormData, metadataOverrides?: Reco
   };
 }
 
+// Static site (GitHub Pages): no backend, the browser POSTs directly to the n8n webhook.
+// The n8n webhook must allow this site's origin (CORS).
 export async function dispatchToN8n(
   payload: any,
   config: WebhookConfig
@@ -41,109 +43,70 @@ export async function dispatchToN8n(
     headersToSend[config.authHeaderKey.trim()] = config.authHeaderValue.trim();
   }
 
-  // If user selected direct browser mode
-  if (config.mode === 'direct' && config.url) {
-    try {
-      const response = await fetch(config.url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...headersToSend,
-        },
-        body: JSON.stringify(payload),
-      });
+  const url = (config.url || '').trim();
+  const id = 'direct_' + Date.now().toString(36);
 
-      const latencyMs = Math.round(performance.now() - startTime);
-      let responseBody: any;
-      const contentType = response.headers.get('content-type') || '';
-      if (contentType.includes('application/json')) {
-        responseBody = await response.json();
-      } else {
-        responseBody = await response.text();
-      }
-
-      return {
-        id: 'direct_' + Date.now().toString(36),
-        timestamp: new Date().toISOString(),
-        webhookUrl: config.url,
-        mode: 'direct',
-        status: response.status,
-        statusText: response.statusText || (response.ok ? 'OK' : 'Error'),
-        latencyMs,
-        success: response.ok,
-        requestPayload: payload,
-        responseBody: responseBody || { message: 'Webhook received' },
-      };
-    } catch (err: any) {
-      const latencyMs = Math.round(performance.now() - startTime);
-      return {
-        id: 'direct_' + Date.now().toString(36),
-        timestamp: new Date().toISOString(),
-        webhookUrl: config.url,
-        mode: 'direct',
-        status: 0,
-        statusText: 'CORS or Network Failure',
-        latencyMs,
-        success: false,
-        requestPayload: payload,
-        responseBody: null,
-        error: `Browser blocked the request (likely CORS). Switch to "Server Proxy" mode in Webhook Settings to bypass CORS restrictions: ${err.message}`,
-      };
-    }
+  if (!url) {
+    return {
+      id,
+      timestamp: new Date().toISOString(),
+      webhookUrl: '',
+      mode: 'direct',
+      status: 0,
+      statusText: 'No webhook URL',
+      latencyMs: 0,
+      success: false,
+      requestPayload: payload,
+      responseBody: null,
+      error: 'No n8n webhook URL configured. Open Webhook Settings and paste your n8n webhook URL.',
+    };
   }
 
-  // Standard path: Server proxy or simulate
   try {
-    const res = await fetch('/api/n8n/dispatch', {
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...headersToSend,
       },
-      body: JSON.stringify({
-        webhookUrl: config.url,
-        payload,
-        customHeaders: headersToSend,
-        mode: config.mode,
-      }),
+      body: JSON.stringify(payload),
     });
 
-    const data: WebhookDispatchResult = await res.json();
-    return data;
+    const latencyMs = Math.round(performance.now() - startTime);
+    let responseBody: any;
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      responseBody = await response.json();
+    } else {
+      responseBody = await response.text();
+    }
+
+    return {
+      id,
+      timestamp: new Date().toISOString(),
+      webhookUrl: url,
+      mode: 'direct',
+      status: response.status,
+      statusText: response.statusText || (response.ok ? 'OK' : 'Error'),
+      latencyMs,
+      success: response.ok,
+      requestPayload: payload,
+      responseBody: responseBody || { message: 'Webhook received' },
+    };
   } catch (err: any) {
-    // Fallback if local backend is temporarily unreachable
     const latencyMs = Math.round(performance.now() - startTime);
     return {
-      id: 'local_err_' + Date.now().toString(36),
+      id,
       timestamp: new Date().toISOString(),
-      webhookUrl: config.url || 'https://demo-n8n.internal.syncpulse.io/webhook/lead-intake',
-      mode: config.mode,
-      status: 500,
-      statusText: 'Internal Dispatch Error',
+      webhookUrl: url,
+      mode: 'direct',
+      status: 0,
+      statusText: 'CORS or Network Failure',
       latencyMs,
       success: false,
       requestPayload: payload,
       responseBody: null,
-      error: err?.message || 'Failed to dispatch via proxy',
+      error: `Browser could not reach the webhook (likely CORS). In n8n, set the Webhook node's "Allowed Origins (CORS)" option to this site's origin: ${err.message}`,
     };
-  }
-}
-
-export async function fetchDispatchHistory(): Promise<WebhookDispatchResult[]> {
-  try {
-    const res = await fetch('/api/n8n/history');
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.history || [];
-  } catch {
-    return [];
-  }
-}
-
-export async function clearDispatchHistory(): Promise<boolean> {
-  try {
-    const res = await fetch('/api/n8n/history', { method: 'DELETE' });
-    return res.ok;
-  } catch {
-    return false;
   }
 }
