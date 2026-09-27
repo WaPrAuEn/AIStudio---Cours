@@ -31,6 +31,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenSettings }) => {
             <a href="#n8n-integration" className="hover:text-neutral-200 transition-colors">
               n8n Guide
             </a>
+            <a href="/static-demo.html" className="text-indigo-400 hover:text-indigo-300 transition-colors">
+              Version HTML Statique
+            </a>
             <button
               type="button"
               onClick={onOpenSettings}

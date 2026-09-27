@@ -46,6 +46,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           <a href="#n8n-integration" className="hover:text-white transition-colors">
             n8n Guide
           </a>
+          <a href="/static-demo.html" className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors flex items-center gap-1">
+            <span>Pages HTML</span>
+            <span className="text-[10px] bg-indigo-500/20 px-1.5 py-0.5 rounded border border-indigo-500/30">Statique</span>
+          </a>
           <a href="#pricing" className="hover:text-white transition-colors">
             Pricing
           </a>

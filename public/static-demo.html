@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Démo n8n — Page HTML Statique Autonome</title>
+  <meta name="description" content="Exemple de page HTML pure et autonome qui poste directement des formulaires vers un webhook n8n en JavaScript natif (fetch)." />
+  <!-- Tailwind CSS CDN pour un affichage instantané et autonome sans compilation -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    pre, code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-neutral-950 text-neutral-100 min-h-screen antialiased selection:bg-indigo-500/30 selection:text-indigo-200">
+
+  <!-- Header -->
+  <header class="border-b border-neutral-850 bg-neutral-950/80 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="/" class="text-xl font-bold tracking-tight text-white hover:text-indigo-400 transition">
+          SyncPulse
+        </a>
+        <span class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded font-mono">
+          Page HTML Statique Pure
+        </span>
+      </div>
+      <div class="flex items-center gap-4 text-sm font-medium">
+        <a href="/" class="text-neutral-400 hover:text-white transition">
+          ← Retour à l'application React
+        </a>
+        <a href="/webhook-landing.html" class="hidden sm:inline text-neutral-400 hover:text-white transition">
+          Landing Simple
+        </a>
+        <a href="#formulaire" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3.5 py-2 rounded-lg transition font-semibold">
+          Tester le Webhook
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="max-w-5xl mx-auto px-4 py-12 md:py-16">
+    <div class="text-center max-w-3xl mx-auto">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-neutral-800 bg-neutral-900/60 text-xs font-mono text-indigo-400 mb-6">
+        <span>Fichier 100% Statique : /static-demo.html</span>
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+        Formulaire HTML Statique avec Envoi HTTP POST direct vers n8n
+      </h1>
+      <p class="mt-4 text-base sm:text-lg text-neutral-400 leading-relaxed">
+        Cette page est un simple fichier HTML/JS standard, sans aucun framework, prête à être hébergée sur n'importe quel serveur (Apache, Nginx, GitHub Pages, Netlify ou Cloudflare Pages).
+      </p>
+    </div>
+
+    <!-- Interface Démo Formulaire -->
+    <div id="formulaire" class="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!-- Formulaire -->
+      <div class="lg:col-span-7 bg-neutral-900/60 border border-neutral-800 rounded-2xl p-6 sm:p-8 backdrop-blur shadow-2xl">
+        <h2 class="text-xl font-bold text-white mb-2">Formulaire de Contact / Lead</h2>
+        <p class="text-xs text-neutral-400 mb-6">
+          Remplissez le formulaire et cliquez sur Envoyer pour déclencher la requête HTTP POST native vers votre webhook n8n.
+        </p>
+
+        <!-- Configuration Rapide de l'URL Webhook n8n -->
+        <div class="mb-6 p-4 rounded-xl border border-neutral-800 bg-neutral-950">
+          <label class="block text-xs font-semibold text-neutral-300 mb-1.5 flex items-center justify-between">
+            <span>URL de votre Webhook n8n :</span>
+            <span class="text-[10px] text-indigo-400 font-mono">Test ou Production</span>
+          </label>
+          <input 
+            type="url" 
+            id="n8nWebhookUrl" 
+            placeholder="https://votre-instance-n8n.com/webhook/mon-lead" 
+            class="w-full bg-neutral-900 border border-neutral-700/80 rounded-lg px-3 py-2 text-xs font-mono text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-indigo-500"
+          />
+          <div class="mt-2 flex items-center justify-between text-[11px] text-neutral-400">
+            <span>💡 Laissez vide pour tester le proxy simulé intégré.</span>
+            <button type="button" id="btnFillPreset" class="text-indigo-400 hover:text-indigo-300 underline cursor-pointer">
+              Exemple prérempli
+            </button>
+          </div>
+        </div>
+
+        <form id="leadForm" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="nom" class="block text-xs font-medium text-neutral-300 mb-1">Nom complet *</label>
+              <input type="text" id="nom" name="nom" required placeholder="Jean Dupont" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition" />
+            </div>
+            <div>
+              <label for="email" class="block text-xs font-medium text-neutral-300 mb-1">Email professionnel *</label>
+              <input type="email" id="email" name="email" required placeholder="jean@entreprise.com" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="entreprise" class="block text-xs font-medium text-neutral-300 mb-1">Entreprise *</label>
+              <input type="text" id="entreprise" name="entreprise" required placeholder="Acme France SAS" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition" />
+            </div>
+            <div>
+              <label for="besoin" class="block text-xs font-medium text-neutral-300 mb-1">Besoin principal</label>
+              <select id="besoin" name="besoin" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition cursor-pointer">
+                <option value="qualification_leads">Automatisation qualification de leads</option>
+                <option value="sync_crm">Synchronisation CRM & ERP</option>
+                <option value="notification_slack">Alertes Slack / Teams en temps réel</option>
+                <option value="autre">Autre projet n8n personnalisé</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label for="message" class="block text-xs font-medium text-neutral-300 mb-1">Message / Commentaires</label>
+            <textarea id="message" name="message" rows="3" placeholder="Précisez votre demande ou vos intégrations cibles (ex: HubSpot, Airtable, Notion)..." class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 transition resize-none"></textarea>
+          </div>
+
+          <div class="pt-2 flex items-center justify-between">
+            <span id="formStatus" class="text-xs text-neutral-400 font-mono">Prêt à envoyer</span>
+            <button type="submit" id="btnSubmit" class="bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] text-white font-semibold text-sm px-6 py-2.5 rounded-xl transition flex items-center gap-2 cursor-pointer shadow-lg shadow-indigo-600/25">
+              <span>Envoyer à n8n</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Log et Inspecteur de la requête -->
+      <div class="lg:col-span-5 space-y-4">
+        <!-- Boîte de réponse n8n -->
+        <div class="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-5 shadow-xl">
+          <div class="flex items-center justify-between pb-3 border-b border-neutral-800">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-300 flex items-center gap-2">
+              <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+              Réponse reçue de n8n
+            </h3>
+            <span id="responseStatusBadge" class="text-[11px] font-mono px-2 py-0.5 rounded bg-neutral-800 text-neutral-400">
+              En attente
+            </span>
+          </div>
+
+          <div class="mt-3">
+            <pre id="responseOutput" class="bg-neutral-950 border border-neutral-850 rounded-xl p-3 text-emerald-300 text-xs font-mono overflow-x-auto max-h-56">// Soumettez le formulaire pour afficher
+// la réponse renvoyée par le webhook n8n...</pre>
+          </div>
+        </div>
+
+        <!-- Code JavaScript natif utilisé dans la page -->
+        <div class="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-5 shadow-xl">
+          <div class="flex items-center justify-between pb-3 border-b border-neutral-800">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-300">
+              Code JavaScript natif (fetch)
+            </h3>
+            <button id="btnCopySnippet" class="text-[11px] text-indigo-400 hover:text-indigo-300 font-mono cursor-pointer">
+              Copier le script
+            </button>
+          </div>
+          <div class="mt-3">
+            <pre class="bg-neutral-950 border border-neutral-850 rounded-xl p-3 text-neutral-300 text-[11px] font-mono overflow-x-auto max-h-64"><code>// Envoi HTTP POST natif en pur JavaScript
+const payload = {
+  event: "lead.soumission",
+  nom: document.getElementById('nom').value,
+  email: document.getElementById('email').value,
+  entreprise: document.getElementById('entreprise').value,
+  timestamp: new Date().toISOString()
+};
+
+const response = await fetch(webhookUrl, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(payload)
+});
+
+const result = await response.json();
+console.log("Réponse n8n :", result);</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Explications & Avantages -->
+    <section class="mt-16 pt-12 border-t border-neutral-850">
+      <h2 class="text-2xl font-bold text-white mb-6">Comment utiliser cette page HTML statique ?</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-neutral-300">
+        <div class="p-5 rounded-xl border border-neutral-800 bg-neutral-900/30">
+          <div class="font-bold text-white text-base mb-2">1. Copier le fichier</div>
+          <p class="text-neutral-400 text-xs leading-relaxed">
+            Vous pouvez enregistrer directement ce fichier (<code class="text-indigo-300">static-demo.html</code>) sur votre ordinateur et l'ouvrir dans n'importe quel navigateur web.
+          </p>
+        </div>
+        <div class="p-5 rounded-xl border border-neutral-800 bg-neutral-900/30">
+          <div class="font-bold text-white text-base mb-2">2. Indiquer votre webhook</div>
+          <p class="text-neutral-400 text-xs leading-relaxed">
+            Dans votre n8n, créez un nœud Webhook en méthode POST, copiez l'URL d'écoute, et collez-la dans la variable ou le champ d'URL.
+          </p>
+        </div>
+        <div class="p-5 rounded-xl border border-neutral-800 bg-neutral-900/30">
+          <div class="font-bold text-white text-base mb-2">3. Gestion du CORS</div>
+          <p class="text-neutral-400 text-xs leading-relaxed">
+            Si n8n bloque le navigateur (erreur CORS), vous pouvez soit activer les en-têtes CORS dans n8n, soit passer par un petit proxy backend comme celui inclus dans cette application.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="mt-16 border-t border-neutral-850 py-8 text-center text-xs text-neutral-500">
+    SyncPulse — Démo de formulaire statique HTML + n8n Webhook. Prêt pour la production.
+  </footer>
+
+  <!-- Script JS Vanilla (Aucune dépendance externe) -->
+  <script>
+    const form = document.getElementById('leadForm');
+    const webhookInput = document.getElementById('n8nWebhookUrl');
+    const statusText = document.getElementById('formStatus');
+    const submitBtn = document.getElementById('btnSubmit');
+    const responseOutput = document.getElementById('responseOutput');
+    const statusBadge = document.getElementById('responseStatusBadge');
+    const btnFillPreset = document.getElementById('btnFillPreset');
+    const btnCopySnippet = document.getElementById('btnCopySnippet');
+
+    // Préremplissage de démonstration
+    btnFillPreset.addEventListener('click', () => {
+      document.getElementById('nom').value = 'Claire de Montmirail';
+      document.getElementById('email').value = 'claire@innovations-group.fr';
+      document.getElementById('entreprise').value = 'Innovations Group SA';
+      document.getElementById('besoin').value = 'qualification_leads';
+      document.getElementById('message').value = 'Test d\'intégration immédiat vers notre workflow n8n de qualification.';
+    });
+
+    // Copie du snippet JS
+    btnCopySnippet.addEventListener('click', async () => {
+      const code = `const response = await fetch(webhookUrl, {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify(payload)\n});`;
+      await navigator.clipboard.writeText(code);
+      btnCopySnippet.textContent = 'Copié !';
+      setTimeout(() => { btnCopySnippet.textContent = 'Copier le script'; }, 2000);
+    });
+
+    // Gestionnaire de soumission
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nom = document.getElementById('nom').value;
+      const email = document.getElementById('email').value;
+      const entreprise = document.getElementById('entreprise').value;
+      const besoin = document.getElementById('besoin').value;
+      const message = document.getElementById('message').value;
+      const customUrl = webhookInput.value.trim();
+
+      const payload = {
+        event: "lead.soumission_statique",
+        specVersion: "1.0",
+        timestamp: new Date().toISOString(),
+        lead: {
+          nom: nom,
+          email: email,
+          entreprise: entreprise,
+          besoin: besoin,
+          message: message || null
+        },
+        metadata: {
+          source: "html_statique_demo",
+          navigateur: navigator.userAgent,
+          page: window.location.href
+        }
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      statusText.textContent = 'Envoi en cours vers n8n...';
+      statusText.className = 'text-xs text-amber-400 font-mono animate-pulse';
+
+      try {
+        let responseData;
+        let statusCode = 200;
+
+        // Si l'utilisateur a renseigné une URL directe
+        if (customUrl) {
+          // On tente l'envoi direct ou via le proxy si CORS bloque
+          try {
+            const res = await fetch(customUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            statusCode = res.status;
+            const text = await res.text();
+            try {
+              responseData = JSON.parse(text);
+            } catch {
+              responseData = { message: text || res.statusText };
+            }
+          } catch (directErr) {
+            // Si CORS bloque, on passe par le proxy de l'application
+            console.warn("Échec direct (probablement CORS), utilisation du proxy /api/n8n/dispatch...", directErr);
+            const proxyRes = await fetch('/api/n8n/dispatch', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                webhookUrl: customUrl,
+                payload: payload,
+                mode: 'proxy'
+              })
+            });
+            const proxyData = await proxyRes.json();
+            statusCode = proxyData.status;
+            responseData = proxyData.responseBody || proxyData;
+          }
+        } else {
+          // Mode simulation / endpoint par défaut
+          const simRes = await fetch('/api/n8n/dispatch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              webhookUrl: '',
+              payload: payload,
+              mode: 'simulate'
+            })
+          });
+          const simData = await simRes.json();
+          statusCode = simData.status;
+          responseData = simData.responseBody;
+        }
+
+        statusBadge.textContent = 'HTTP ' + statusCode;
+        statusBadge.className = 'text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800';
+        responseOutput.textContent = JSON.stringify(responseData, null, 2);
+        statusText.textContent = 'Envoyé avec succès !';
+        statusText.className = 'text-xs text-emerald-400 font-mono';
+
+      } catch (err) {
+        statusBadge.textContent = 'Erreur';
+        statusBadge.className = 'text-[11px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800';
+        responseOutput.textContent = JSON.stringify({
+          erreur: err.message,
+          conseil: "Vérifiez que votre instance n8n est active et accepte les requêtes POST."
+        }, null, 2);
+        statusText.textContent = 'Échec de transmission';
+        statusText.className = 'text-xs text-rose-400 font-mono';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+    });
+  </script>
+</body>
+</html>

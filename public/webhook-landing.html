@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Landing Page Statique — Prêt pour n8n</title>
+  <style>
+    :root {
+      --bg: #09090b;
+      --card: #18181b;
+      --border: #27272a;
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --primary: #4f46e5;
+      --primary-hover: #6366f1;
+      --success: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 0 1rem;
+    }
+    .container {
+      max-width: 680px;
+      margin: 3rem auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-family: monospace;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      background: rgba(79, 70, 229, 0.15);
+      color: #a5b4fc;
+      border: 1px solid rgba(79, 70, 229, 0.3);
+      margin-bottom: 1rem;
+    }
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.75rem;
+    }
+    p.lead {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.75rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      color: var(--text);
+    }
+    input, select, textarea {
+      width: 100%;
+      background: #09090b;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.65rem 0.85rem;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 540px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    button.btn-submit {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+    button.btn-submit:hover {
+      background: var(--primary-hover);
+    }
+    button.btn-submit:active {
+      transform: scale(0.99);
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    #resultBox {
+      display: none;
+      margin-top: 1.5rem;
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #34d399;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .footer-links {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .footer-links a {
+      color: #818cf8;
+      text-decoration: none;
+      margin: 0 0.5rem;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <div class="badge">Page HTML 100% Autonome (Zero Dépendance)</div>
+      <h1>Postez directement vers votre webhook n8n</h1>
+      <p class="lead">Ce fichier HTML pur fonctionne sans serveur Node.js ni build tool. Ouvrez-le simplement dans votre navigateur ou uploadez-le sur votre hébergeur web.</p>
+    </div>
+
+    <div class="card">
+      <form id="contactForm">
+        <!-- Configuration de l'URL n8n -->
+        <div class="form-group">
+          <label for="n8n_url">URL de votre Webhook n8n :</label>
+          <input type="url" id="n8n_url" placeholder="https://votre-n8n.cloud/webhook/..." />
+          <small style="color: var(--text-muted); font-size: 0.75rem; display:block; margin-top: 4px;">
+            Laissez vide pour tester le webhook simulé ou collez votre webhook de test n8n.
+          </small>
+        </div>
+
+        <div class="grid">
+          <div class="form-group">
+            <label for="fullName">Votre Nom :</label>
+            <input type="text" id="fullName" required placeholder="Alice Martin" value="Alice Martin" />
+          </div>
+          <div class="form-group">
+            <label for="email">Votre Email :</label>
+            <input type="email" id="email" required placeholder="alice@acme.com" value="alice@acme.com" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="service">Intérêt :</label>
+          <select id="service">
+            <option value="automatisation_leads">Automatisation Inbound Leads</option>
+            <option value="enrichissement">Enrichissement de données</option>
+            <option value="ia_agent">Agent IA & Orchestration</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="comments">Message :</label>
+          <textarea id="comments" rows="3" placeholder="Votre message...">Bonjour, nous souhaitons brancher notre formulaire sur un scénario n8n.</textarea>
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn-submit">
+          Envoyer la requête POST à n8n
+        </button>
+      </form>
+
+      <div id="resultBox"></div>
+    </div>
+
+    <div class="footer-links">
+      <a href="/">&larr; Retour à l'application principale</a>
+      <span>&bull;</span>
+      <a href="/static-demo.html">Voir la démo HTML complète</a>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('contactForm');
+    const resultBox = document.getElementById('resultBox');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const webhookUrl = document.getElementById('n8n_url').value.trim();
+      const payload = {
+        event: 'n8n_form_submitted',
+        fullName: document.getElementById('fullName').value,
+        email: document.getElementById('email').value,
+        service: document.getElementById('service').value,
+        comments: document.getElementById('comments').value,
+        date: new Date().toISOString()
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Envoi en cours...';
+      resultBox.style.display = 'block';
+      resultBox.style.color = '#fbbf24';
+      resultBox.innerText = 'POST en cours vers n8n...';
+
+      try {
+        let responseJson;
+
+        if (webhookUrl) {
+          // Envoi direct ou proxy
+          try {
+            const res = await fetch(webhookUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            const text = await res.text();
+            try { responseJson = JSON.parse(text); } catch { responseJson = { message: text }; }
+          } catch (err) {
+            // En cas de blocage CORS direct dans le navigateur, on passe par le proxy backend
+            const proxyRes = await fetch('/api/n8n/dispatch', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ webhookUrl, payload, mode: 'proxy' })
+            });
+            responseJson = await proxyRes.json();
+          }
+        } else {
+          // Simulation
+          const simRes = await fetch('/api/n8n/dispatch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ webhookUrl: '', payload, mode: 'simulate' })
+          });
+          responseJson = await simRes.json();
+        }
+
+        resultBox.style.color = '#34d399';
+        resultBox.innerText = 'Succès !\n' + JSON.stringify(responseJson, null, 2);
+      } catch (error) {
+        resultBox.style.color = '#f87171';
+        resultBox.innerText = 'Erreur lors de l\'envoi : ' + error.message;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Envoyer la requête POST à n8n';
+      }
+    });
+  </script>
+</body>
+</html>
