@@ -2,29 +2,13 @@ import { WebhookConfig, WebhookDispatchResult, LeadFormData } from '../types/n8n
 
 export const DEFAULT_WEBHOOK_URL = ''; // Empty defaults to simulated demo workflow if no user URL provided
 
-export function buildN8nPayload(formData: LeadFormData, metadataOverrides?: Record<string, any>) {
+// Flat payload read by the course n8n workflows as body.nom, body.email, body.entreprise, body.message
+export function buildN8nPayload(formData: LeadFormData) {
   return {
-    event: 'lead.demo_requested',
-    specVersion: '1.0',
-    timestamp: new Date().toISOString(),
-    id: 'evt_' + Math.random().toString(36).substring(2, 11),
-    lead: {
-      fullName: formData.fullName,
-      email: formData.email,
-      company: formData.company,
-      teamSize: formData.teamSize,
-      monthlyLeads: formData.monthlyLeads,
-      primaryWorkflowGoal: formData.primaryWorkflowGoal,
-      notes: formData.notes || null,
-    },
-    context: {
-      source: 'syncpulse_landing_page',
-      channel: 'web_inbound_demo',
-      referrer: typeof document !== 'undefined' ? document.referrer || 'direct' : 'direct',
-      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'SyncPulseWebClient',
-      locale: typeof navigator !== 'undefined' ? navigator.language : 'en-US',
-      ...metadataOverrides,
-    },
+    nom: formData.nom,
+    email: formData.email,
+    entreprise: formData.entreprise,
+    message: formData.message,
   };
 }
 

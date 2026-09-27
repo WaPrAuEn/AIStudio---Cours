@@ -76,8 +76,8 @@ export const DispatchHistoryDrawer: React.FC<DispatchHistoryDrawerProps> = ({
                 </div>
 
                 <div className="mt-2 text-xs font-medium text-white truncate group-hover:text-indigo-300 transition-colors">
-                  {item.requestPayload?.lead?.fullName || item.requestPayload?.event || 'Ping Event'}
-                  {item.requestPayload?.lead?.company && ` · ${item.requestPayload.lead.company}`}
+                  {item.requestPayload?.nom || item.requestPayload?.event || 'Ping Event'}
+                  {item.requestPayload?.entreprise && ` · ${item.requestPayload.entreprise}`}
                 </div>
 
                 <div className="mt-1 flex items-center justify-between text-[11px] font-mono text-neutral-500">

@@ -1,11 +1,9 @@
+// Fields expected by the course n8n workflows (body.nom, body.email, ...)
 export interface LeadFormData {
-  fullName: string;
+  nom: string;
   email: string;
-  company: string;
-  teamSize: string;
-  monthlyLeads: string;
-  primaryWorkflowGoal: string;
-  notes: string;
+  entreprise: string;
+  message: string;
 }
 
 export interface WebhookConfig {
